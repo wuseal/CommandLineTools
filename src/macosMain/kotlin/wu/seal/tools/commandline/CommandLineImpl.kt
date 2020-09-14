@@ -1,17 +1,58 @@
 package wu.seal.tools.commandline
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.prompt
 
-class CommandLineImpl:CliktCommand() {
-    val action:String by option(help = "行为名称，表示要执行什么动作").prompt("请输入要执行的动作")
+class CommandLineImpl : CliktCommand() {
+    override fun run() = Unit
+}
+
+class AsyncConfig : CliktCommand() {
+
+    private val localConfigDir = KDir("~/seal/config")
+
+    init {
+        localConfigDir.create()
+    }
+
     override fun run() {
-        if (action == "hello") {
-            println(hello())
+        baseCheck()
+        initLocalConfigRepo()
+//        if (accessGithubAccount().not) {
+//           return
+//        }
+//        syncConfig()
+//        if (configChanged().not) {
+//            return
+//        }
+//        applyConfig()
+    }
+
+    private fun initLocalConfigRepo() {
+        val dotGitDir = KDir(".git")
+        if (dotGitDir.exist()) {
+            //已经有本地仓库
+            //合并本机环境配置覆盖到当前这个Git仓库
+            //推送更新到远程配置仓库
+        } else {
+            //本地还未有仓库，开始执行下拉配置，进行配置应用
+
         }
     }
 
-    fun hello(): String = "Hello, Kotlin/Native!"
+    private fun baseCheck() {
+        checkGitInstallState()
+        checkBrewInstall()
+    }
 
+    private fun checkBrewInstall() {
+        if (commandNotExist("brew")) {
+            MacTools.installBrew()
+        }
+    }
+
+    private fun checkGitInstallState() {
+        if (commandNotExist("git")) {
+            error("请安装git")
+        }
+    }
 }

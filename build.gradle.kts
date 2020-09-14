@@ -1,21 +1,26 @@
 plugins {
-    id("org.jetbrains.kotlin.multiplatform").version("1.3.72")
+    kotlin("multiplatform") version ("1.4.10")
+    kotlin("plugin.serialization") version "1.4.10"
 }
 repositories {
     mavenCentral()
+    jcenter()
 }
 kotlin {
-    // For ARM, should be changed to iosArm32 or iosArm64
-    // For Linux, should be changed to e.g. linuxX64
-    // For MacOS, should be changed to e.g. macosX64
-    // For Windows, should be changed to e.g. mingwX64
     macosX64("macos") {
         binaries {
             executable {
                 // Change to specify fully qualified name of your application's entry point:
                 entryPoint = "wu.seal.tools.commandline.main"
                 // Specify command-line arguments, if necessary:
-                runTask?.args("")
+//                runTask?.args("")
+            }
+            compilations["main"].cinterops {
+                create("scriptexec") {
+                    packageName = "sagiegurari.c_scriptexec"
+                    defFile = file("$projectDir/scriptexec/scriptexec.def")
+                    includeDirs("$projectDir/scriptexec/include")
+                }
             }
         }
     }
@@ -24,7 +29,8 @@ kotlin {
         // in gradle.properties file and re-import your project in IDE.
         val macosMain by getting {
             dependencies {
-                implementation("com.github.ajalt:clikt-macosx64:2.8.0")
+                implementation("com.github.ajalt.clikt:clikt:3.0.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
             }
         }
         val macosTest by getting {

@@ -1,0 +1,3 @@
+headers = scriptexec.h
+staticLibraries = libscriptexec.a
+libraryPaths = ./scriptexec/lib
