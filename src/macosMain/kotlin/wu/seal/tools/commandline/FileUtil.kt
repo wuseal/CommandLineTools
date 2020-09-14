@@ -10,6 +10,8 @@ private val logger = Log(TAG)
  * 文件操作是存在文件指针的，读取和写都会移动文件指针,这里就不用文件指针操作偏移，直接开关文件进行重置
  */
 class KFile(val filePath: String) {
+    constructor(dir: KDir, fileName: String) : this(dir.cleanDirPath + "/" + fileName)
+
     private var fileP: CPointer<FILE>? = null
     private val fileInfo: stat?
         get() {
@@ -93,20 +95,29 @@ class KFile(val filePath: String) {
      * 创建文件,如果父目录不存在，则会一起把父目录一起创建了
      * 创建成功返回true
      */
-    fun create():Boolean {
+    fun create(): Boolean {
         var createSuccess = false
         if (!parent.exist()) {
             parent.create()
         }
         fileP = fopen(filePath, "r")
         if (fileP == NULL) {
-            fileP = fopen(fileName, "w");
+            fileP = fopen(filePath, "w");
             if (fileP != null) {
                 createSuccess = true
             }
         }
         fclose(fileP)
         return createSuccess
+    }
+
+    /**
+     * 拷贝当前文件到目标文件中，是完全替换的那种
+     */
+    fun copyTo(destFile: KFile) {
+        destFile.delete()
+        destFile.create()
+        destFile.writeText(readAllText() ?: "")
     }
 
     val parent: KDir by lazy {

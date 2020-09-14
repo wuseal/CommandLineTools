@@ -6,13 +6,19 @@ import kotlinx.cinterop.toKString
 import platform.posix.*
 
 class KDir(val dirPath: String) {
+
+    constructor(parentDir: KDir, dirName: String) : this(parentDir.cleanDirPath + "/" + dirName)
+
+    /**
+     * 干净的目录路径，不包括/后缀
+     */
+    val cleanDirPath = if (dirPath.endsWith("/")) dirPath.dropLast(1) else dirPath
+
     fun listFiles(): List<KFile> {
         val dir = opendir(dirPath)
         dir ?: return listOf()
         var mDirent: dirent? = readdir(dir)?.pointed
-
         val kFiles = mutableListOf<KFile>()
-        val cleanDirPath = if (dirPath.endsWith("/")) dirPath.dropLast(1) else dirPath
         while (mDirent != null) {
             //判断对象类型是文件的时候添加到文件列表里
             if (mDirent.d_type.toInt() == DT_REG) {
@@ -91,5 +97,13 @@ class KDir(val dirPath: String) {
         listDirs().forEach { it.deleteRecursively() }
         listFiles().forEach { it.delete() }
         return delete()
+    }
+
+    /**
+     * 拷贝当前目录的所有内容到新的目录中
+     */
+    fun copyTo(dest: KDir) {
+        listFiles().onEach { it.copyTo(KFile(dest, it.fileName)) }
+        listDirs().onEach { it.copyTo(KDir(dest, it.dirName)) }
     }
 }
