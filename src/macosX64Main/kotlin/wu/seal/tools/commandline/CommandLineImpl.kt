@@ -8,7 +8,7 @@ class CommandLineImpl : CliktCommand() {
 
 class AsyncConfig : CliktCommand() {
 
-    private val userDir = KDir("/Users/wuhaibao")
+    private val userDir = KDir(USER_HOME_DIR)
     private val localConfigDir = KDir(userDir, "seal/config")
 
     init {

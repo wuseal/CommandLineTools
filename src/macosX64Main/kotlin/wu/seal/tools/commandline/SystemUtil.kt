@@ -1,10 +1,7 @@
 package wu.seal.tools.commandline
 
 import kotlinx.cinterop.*
-import platform.posix.NULL
-import platform.posix.fgets
-import platform.posix.pclose
-import platform.posix.popen
+import platform.posix.*
 import sagiegurari.c_scriptexec.scriptexec_run
 
 private val logger = Log("SystemUtil")
@@ -83,3 +80,8 @@ fun commandExist(command: String): Boolean {
 fun commandNotExist(command: String): Boolean {
     return executeCommand(command).contains("command not found")
 }
+
+/**
+ * 用户目录
+ */
+val USER_HOME_DIR = getpwuid(getuid())?.pointed?.pw_dir?.toKString()!!
